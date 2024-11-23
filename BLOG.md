@@ -44,7 +44,7 @@ describe('MyClassUnderTest', () => {
 });
 ```
 Results in an nice output like this:
-![Nice JavaScript Output](./screenshots/nice_javascript_output.jpg "Nice JavaScript Output")
+![Nice JavaScript Output](./screenshots/javascript_nice_output.jpg "Nice JavaScript Output")
 
 Other method based test frameworks like JUnit and TestNG don't require this and its led to these awful 
 [conventions](https://enterprisecraftsmanship.com/posts/you-naming-tests-wrong/)

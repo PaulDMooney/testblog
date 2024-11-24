@@ -13,8 +13,8 @@ really sure what's supposed to be happening, or if it's safe to change. So let's
 One of the pillars of writing good tests is to make the test output look good for human eyes. We want it to be like 
 self affirming documentation of what the expected behaviours of the various units of the system are, as well as the 
 behaviours of the system in general. 
-This may seem obvious, but the statement I'm really trying to make here is that the test code itself is not 
-good enough to explain what's happening. It's not good enough for a couple of reasons. The first being, that it 
+This may seem obvious, but the statement I'm really trying to make here is that the test code itself is **not 
+good enough** to explain what's happening. It's not good enough for a couple of reasons. The first being, that it 
 significantly slows developers down
 having to read the test code. The second is that the test code does not express meaning and intentions. 
 Sometimes it is nearly impossible to determine
@@ -26,25 +26,28 @@ So how do we know if we have good output? We just look at it. Various IDEs and o
 kind of test output report, this is what we're aiming to make look good.
 
 ![IntelliJ Test Output](./screenshots/intellij_testrun_output.jpg "IntelliJ Test Run Output")
+*Example IntelliJ Test Run Output*
 
 ![VSCode Test Explorer Output](./screenshots/vscode_testexplorer_output.jpg "VSCode Java Test Explorer Output")
 
 The rest of this post will cover tips for how to make this output look good.
 
 ## Human Readable Test Descriptions
-Depending on your test framework, this is may be a no brainer. NodeJS testing frameworks, RSpec, and certain flavours of Kotest
-all have a required space for you to write real, human readable sentences right into the test. Making their output quite
+Depending on your test framework, this is may be a no brainer. NodeJS testing frameworks, RSpec, and most 
+styles of [Kotest](https://kotest.io/docs/framework/framework.html)
+all have a required space for you to write real, human readable sentences right into the test and their test contexts. Making their output quite
 legible. 
 
 ```javascript
 describe('MyClassUnderTest', () => {
-  it('Given an `id` for an existing record, when `deleteById` is called, then the record is deleted from the DB', () => {
+  test('Given an `id` for an existing record, when `deleteById` is called, then the record is deleted from the DB', () => {
     // test code here
   });
 });
 ```
 Results in an nice output like this:
 ![Nice JavaScript Output](./screenshots/javascript_nice_output.jpg "Nice JavaScript Output")
+*Example NodeJS Test output*
 
 Other method based test frameworks like JUnit and TestNG don't require this and its led to these awful 
 [conventions](https://enterprisecraftsmanship.com/posts/you-naming-tests-wrong/)
@@ -64,8 +67,7 @@ And nowhere else in life do we need to read sentences that look like this, so we
 
 Fortunately these test frameworks usually have a way to add a description to the test. 
 For example, In JUnit, you can use the `@DisplayName` annotation to write normal sentences. Or TestNG has
-`@Test(name="...some name... ")`. We should ALWAYS use these kinds of annotations. And then it doesn't really
-matter what the method name is.
+`@Test(name="...some name... ")`. If we're using this kind of testing framework then we should ALWAYS use these kinds of annotations. And then it doesn't really matter what the method name is.
 
 An improved example of the test above:
 ```java
@@ -76,9 +78,7 @@ void testDeleteById1() {
 }
 ```
 
-This will give us a nice human readable output in the test report:
-
-TODO: Example screenshot of the test report
+This will give us a nice human readable output in the test report, just like the NodeJS Test above.
 
 ## Structured Testing
 
@@ -86,32 +86,33 @@ Another tool that can help make our test output look good is to take advantage o
 tests within a nesting of "contexts". This helps us create reusability in the test code, but more importantly in the test
 sentence structure. Imagine we have these 3 [flat] tests for a REST endpoint:
 
-- Given a valid `id`, when calling the `/api/record/{id}` endpoint, it should return the record for that `id`
-- Given a valid `id`, when calling the `/api/record/{id}` endpoint, it should return a 200 response code
-- Given a valid `id`, and the `Accept` header is `application/xml`, when calling the `/api/record/{id}` endpoint, 
-it should return the record for that `id` in XML format
+- Given an \`id\` for an existing record, when calling the \`/api/record/{id}\` endpoint, it should return the record for that \`id\`
+- Given an \`id\` for an existing record, when calling the \`/api/record/{id}\` endpoint, it should return a 200 response code
+- Given an \`id\` for an existing record, and the \`Accept\` header is \`application/xml\`, when calling the \`/api/record/{id}\` endpoint, 
+it should return the record for that \`id\` in XML format
 
 In this example there are two problems: We're repeating the same setup over and over again, and the test descriptions are
 becoming verbose run-on sentences. Structured testing can help solve this problem. We can group these tests into nested contexts
 like so:
 
-- Given a valid `id`
-  - When calling the `/api/record/{id}` endpoint
-    - It should return the record for that `id`
+- Given an \`id\` for an existing record
+  - When calling the \`/api/record/{id}\` endpoint
+    - It should return the record for that \`id\`
     - It should return a 200 response code
-  - And the `Accept` header is `application/xml`
-    - When calling the `/api/record/{id}` endpoint 
-      - It should return the record for that `id` in XML format
+  - And the \`Accept\` header is \`application/xml\`
+    - When calling the \`/api/record/{id}\` endpoint 
+      - It should return the record for that \`id\` in XML format
 
-TODO: Show code and test output
+Resulting in the following output:
+![Structured Test Output](./screenshots/strucured_test_output.jpg)
+*Notice the expand/collapse controls that can help narrow down on the specific cases you may be interested in*
 
 This definitely looks cleaner. One could argue that this deviates from a natural language sentence structure, or that
 there's extra cognitive load in having to piece together the full declaration of a single test from its setup, to execution, to expectation.
-This might be true but in the first example with the flattened test structure we also have an arguably poor sentence structure given how
-long they are, and there may be just as much mental load grouping the tests with similar contexts together. So in that
+This might be true but in the first example with the flattened test structure we also have an arguably poor sentence structure given that they verge on run-on sentences, and there may be just as much mental load grouping the tests together which share the same contexts. So in that
 sense it's a wash. But from a visualization, and organization standpoint providing a structure like this is the clear winner.
 
-In JUnit this can be accomplished using the `@Nested` annotation. In 
+In JUnit this can be accomplished using the `@Nested` annotation:
 
 ```java
 @DisplayName("REST Endpoint tests")
@@ -143,4 +144,5 @@ class RestEndpointTest {
 }
 ```
 
-TODO: Counterpoint to https://kentcdodds.com/blog/avoid-nesting-when-youre-testing
+## Conclusion
+Well that's a start. Writing tests that produce a nice organized and readable output is a simple but impactful first step. Stay tuned, I will be building on top of this with more advice to further improve how we write good tests.

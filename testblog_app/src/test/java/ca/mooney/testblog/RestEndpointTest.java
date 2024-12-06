@@ -11,7 +11,7 @@ class RestEndpointTest {
     @Nested
     class GivenValidId {
 
-        @DisplayName("When calling the `/api/record/{id}` endpoint")
+        @DisplayName("When calling the `GET /api/record/{id}` endpoint")
         @Nested
         class WhenCallingRecordEndpoint {
 
@@ -44,6 +44,21 @@ class RestEndpointTest {
                     // test code here
                 }
             }
+        }
+    }
+
+    @DisplayName("Given an `id` for a no existing records")
+    @Nested
+    class GivenInvalidId {
+        @DisplayName("When calling the `GET /api/record/{id}` endpoint")
+        @Nested
+        class WhenCallingRecordEndpoint {
+
+                @DisplayName("It should return a 404 response code")
+                @Test
+                void test404Response() {
+                    // test code here
+                }
         }
     }
 }

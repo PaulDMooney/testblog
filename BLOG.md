@@ -144,5 +144,10 @@ class RestEndpointTest {
 }
 ```
 
+Structured testing isn't always mandatory. Sometimes a unit is simple enough that its tests can be written out in a flat
+list. But more often then not, I find that for the sake of readability and organization, it's necessary to introduce some
+kind of structure.
+
 ## Conclusion
-Well that's a start. Writing tests that produce a nice organized and readable output is a simple but impactful first step. Stay tuned, I will be building on top of this with more advice to further improve how we write good tests.
+Well that's a start. Writing tests that produce a nice organized and readable output is a simple but impactful first step. 
+Stay tuned, I will be building on top of this with more advice to further improve how we write good tests.

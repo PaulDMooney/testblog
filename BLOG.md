@@ -147,8 +147,6 @@ kind of structure.
 
 ## Conclusion
 
-Enhancing the developer experience when running tests is essential for maintaining a robust and efficient development process. 
 By focusing on clear and comprehensible test output, we can ensure that both current and future developers can easily understand the purpose and results of tests. 
-This clarity not only aids in debugging and maintaining the code but also promotes confidence in making changes and improvements. 
-Well-written tests serve as valuable documentation and a safety net, making the development process smoother and more reliable. 
-Invest time in writing meaningful tests and making their output as informative as possible.
+This not only aids in debugging and maintaining the code but also increases confidence in making changes and improvements. 
+Well-written tests serve as valuable documentation, making the development process smoother and more reliable. 

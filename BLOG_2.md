@@ -1,44 +1,43 @@
 # Enhancing the Developer Experience of Testing Part 2
 
-In my last post I talked about the writing tests with natural language descriptions, and leveraging structured testing
-to provide organized and comprehensible output. Here I will expand more on some of these concepts. 
+In my last post, I talked about writing tests with natural language descriptions, and leveraging structured testing
+to provide organized and comprehensible output. Here I will expand more on these concepts. 
 
 ## Structured Testing Part 2
-Structured testing is a nesting of contexts until eventually terminating in one or more tests. Contexts, just like the
-tests, can also be described (or named) with natural language and can appear in the test output in a tree structure.
+Structured testing is a nesting of contexts, until eventually terminating in one or more tests. In NodeJS test framework, a context is a `describe` function. In JUnit a context is the test class itself or a `@Nested` inner class. Contexts, just like 
+tests, can also be described (or named) with natural language and can appear in the test output's tree structure.
 Here are some of the ways we can use this contextual test structure for well described tests:
 
 ### Given-When-Then Pattern
-Borrowing from [BDD](https://martinfowler.com/bliki/GivenWhenThen.html), one of the ways we can structure our tests is 
+Borrowing from [Behaviour Driven Development (BDD)](https://martinfowler.com/bliki/GivenWhenThen.html), one of the ways we can structure our tests is 
 to use the Given-When-Then pattern. In this pattern we nest the `Given`s, `When`s, and `Then`s in a hierarchical layout
 where the `Given`s and `When`s are contexts and `Then`s are the tests (in most popular testing frameworks). 
 
-The `Given` context's clause describes some kind of preconditions. I also like to include inputs here as well because 
-it still gives purpose to the `Given` clause when the thing being tested does not require preconditions. I will 
-talk more on this later, but generally most might not prefer to include inputs here.
+The `Given` context's clause describes some kind of preconditions. I like to include inputs here as well because 
+it gives purpose to the `Given` clause even when the thing being tested does not require preconditions. I will 
+talk more on this later, but some people may prefer to not include inputs here.
 
 The `When` context's clause describes the execution. It can also be used to describe inputs if you prefer. Again, more
 on this later.
 
 The `Then` clause for tests should describe our expectation. This fits nicely with the "One assert per test" rule.
-Sometimes from one execution we have multiple expectations. For example, if we were testing a REST endpoint then we
-might expect the response body looks a particular way, but also separately we expect the response code to be a 
+Sometimes, from one execution we have multiple expectations. For example, if we were testing a REST endpoint then we
+might expect that the response body looks a particular way, but also separately we expect the response code to be a 
 particular value. These are two conceptually different expectations to assert from the same single execution 
-with all the same preconditions. And there could be more, maybe there were certain response headers expected too. 
+with all the same preconditions. And there could be more -  maybe there were certain response headers expected, too. 
 Breaking our expectations up into multiple `Then` clauses/test lets us describe each expectation separately.
 
 *Note*: It's common to see synonymous conventions to these like "Arrange-Act-Assert", or the use of "it should ..." for tests
-instead of "Then...". This is all fine if, as long as consistency is maintained.
+instead of "Then...". This is all fine, as long as consistency is maintained.
 
-There are generally at least two more kinds of contexts in this pattern we will see:
+There are generally at least two more kinds of contexts in this pattern that we will see:
 
 1. The `And` context. This is used for providing additional preconditions or inputs to compliment the `Given` or `When`
 contexts.
 
 2. The class or file under test context. This is the highest level context and just describes the class or file containing
 the units to be tested.
- Or is just a name for a group of tests in a particular test file. This comes implicitly in some test frameworks and may
-default to the name of the class or file containing the tests.
+It could also just be a name for a group of tests in a particular test file. This comes implicitly in some test frameworks and may default to the name of the class or file containing the tests.
 
 Here's an example all of this in action using JUnit:
 
@@ -86,7 +85,7 @@ class RestEndpointTest {
         }
     }
     
-    @DisplayName("Given an `id` for a no existing records")
+    @DisplayName("Given an `id` which does not correspond to an existing record")
     @Nested
     class GivenInvalidId {
         @DisplayName("When calling the `GET /api/record/{id}` endpoint")
@@ -110,8 +109,8 @@ because, in its current form, it lacks a way to organize all tests for a particu
 This can be difficult from a code organization standpoint, and since test order is usually randomized, the tests
 for a particular unit become scattered amongst the contexts and tests for other sibling units.
 
-To combat this, I like to organize my tests in a UnitUnderTest-Given-Then pattern. Where "UnitUnderTest" is usually the
-particular unit being tested (whether that be a method, function, REST endpoint, etc. being tested). 
+To combat this, I like to organize my tests in a UnitUnderTest-Given-Then pattern. "UnitUnderTest" is the
+particular unit being tested, whether that be a method, function, REST endpoint, or other [unit](https://en.wikipedia.org/wiki/Unit_testing#Unit).
 Our structured test hierarchy would look like this:
 
 - ClassUnderTest
@@ -146,7 +145,7 @@ public class PersonServiceTest {
             }
         }
 
-        @DisplayName("Given an `id` for no existing records")
+        @DisplayName("Given an `id` which does not correspond to an existing record")
         @Nested
         class GivenIdForNoExistingRecords {
 
@@ -176,15 +175,15 @@ public class PersonServiceTest {
 }
 ```
 
-*Note*: This does put a bit of a demand on the reader to understand the convention going on here. As any sentence
+*Note*: This does put a bit of a demand on the reader to understand the convention going on here, as any sentence
 that can be inferred from the hierarchy starts deeper into the hierarchy than it does in the "Given-When-Then" pattern.
-I believe this is a not a difficult expectation for readers to pick up on this pattern, especially for the 
+I believe this is a not a difficult expectation for readers to pick up on this pattern, especially given the 
 organizational advantage it provides.
 
 #### Alternative: UnitUnderTest-Given-When-Then Pattern
 So far, I've omitted the `When` context because I state the inputs in the `Given` context. This is a personal preference
 and if you believe `Given`s should only state preconditions, then you can include a `When` context to describe the inputs.
-Both of these do not need to exist, sometimes you don't have preconditions, or sometimes you don't have inputs.
+Both of these do not need to exist - sometimes you don't have preconditions, and sometimes you don't have inputs.
 
 Example with both `Given` and `When` contexts, because there is both a preconditon and an input:
 * PersonService
@@ -287,9 +286,9 @@ leave the reader guessing. This "appropriate value" gives no clue about what the
 it does it.
 
 This can be a bit of a challenge, as you also don't want to be overly specific or too verbose. You need to find the 
-phrasing that describes just enough when you can while still giving the reader a good idea of what's going on. 
-Ideally we should fully understand the test from reading the test output, there can be times when we need to find phrasing 
-that invites the reader of the test output to dig into the test code if they need more specifics. Though this should be rare.
+phrasing that is just descriptive enough to give the reader a good idea of what's going on. 
+Ideally we should fully understand the test from reading its output, but there are times that's not possible or reasonable. So instead we need to find phrasing 
+that invites the reader to dig into the test code if they need more specifics. It should be rare that they need to do this.
 
 For example, with this test:
 * PersonService
@@ -302,14 +301,13 @@ field `lastName` populated from the database column `SURNAME`? I don't know. I'l
 While that's inconvenient, if there's 20 fields in a `Person` record, leaving it kind of vague makes it much easier to both
 write and read these tests rather than describing how every single field gets populated.
 
-We also want to be careful here not to mask any behaviours. Like if the `Person` returned has an age, which is
+We also want to be careful here not to mask any behaviours. For example, if the `Person` returned has an age, which is
 computed based on the birthdate stored in the database, then that should have its own test somewhere and not just hidden
 amongst the assertions in the "It should return a Person record for that `id` with all fields populated from the database"
 test.
 
 ## Conclusion
-That's a wrap on Part 2 on my compilation of tips for writing good tests. So far this has all been about the organization
-and verbiage around the tests. Which is important because it not only helps the reader of these tests, but it can help
-organize your thoughts about how to actually write the test code. Maybe later we will get into more advice around
-what to test and how to test it. This is a compilation of my advice derived from my own experiences. I hope you find it useful.
-There may be much more advice out there so keep an eye out.
+This post has all been about the organization
+and verbiage around tests. This is important because it not only helps the reader of these tests, but it can help
+organize your thoughts about how to actually write the test code. This advice is all derived from my own experiences; 
+I hope you find it useful.

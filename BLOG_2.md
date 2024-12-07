@@ -1,6 +1,7 @@
-# Testing Blog 2
+# Enhancing the Developer Experience of Testing Part 2
+
 In my last post I talked about the writing tests with natural language descriptions, and leveraging structured testing
-to provide organized and comprehensible output. Here I will expand more on some of these concepts.
+to provide organized and comprehensible output. Here I will expand more on some of these concepts. 
 
 ## Structured Testing Part 2
 Structured testing is a nesting of contexts until eventually terminating in one or more tests. Contexts, just like the
@@ -14,12 +15,13 @@ where the `Given`s and `When`s are contexts and `Then`s are the tests (in most p
 
 The `Given` context's clause describes some kind of preconditions. I also like to include inputs here as well because 
 it still gives purpose to the `Given` clause when the thing being tested does not require preconditions. I will 
-talk more on this later, but generally most might not prefer to do that.
+talk more on this later, but generally most might not prefer to include inputs here.
 
-The `When` context's clause describes the execution.
+The `When` context's clause describes the execution. It can also be used to describe inputs if you prefer. Again, more
+on this later.
 
 The `Then` clause for tests should describe our expectation. This fits nicely with the "One assert per test" rule.
-Sometimes from one execution we expect multiple expectations. For example, if we were testing a REST endpoint then we
+Sometimes from one execution we have multiple expectations. For example, if we were testing a REST endpoint then we
 might expect the response body looks a particular way, but also separately we expect the response code to be a 
 particular value. These are two conceptually different expectations to assert from the same single execution 
 with all the same preconditions. And there could be more, maybe there were certain response headers expected too. 
@@ -102,17 +104,14 @@ class RestEndpointTest {
 ```
 
 ### UnitUnderTest-Given-Then Pattern
-A lot of the time we're testing methods of a class, or functions in a file, or REST Endpoints, or similar. 
-It helps to group tests by the unit/thing being tested. 
-From an organizational standpoint, this is where the Given-When-Then pattern needs an alteration, depending on how you use it. 
-Usually the "When" part is something like "when method XYZ is called" which, when there's multiple "Given" contexts, 
-it can be repetitive, especially when nothing differentiates your "When" clauses from each other. Which can happen when
-the inputs are described in your "Given" clauses. A bigger problem is the tests aren't organized by unit. Since test runners usually randomize the order 
-of the tests, so all the tests for a particular unit
-become scattered amongst the tests for other sibling units. And the test code structure can be disorganized as well.
+It can be helpful to group all contexts and tests by the unit being tested. 
+From an organizational standpoint, this is where the Given-When-Then pattern needs an alteration 
+because, in its current form, it lacks a way to organize all tests for a particular unit.
+This can be difficult from a code organization standpoint, and since test order is usually randomized, the tests
+for a particular unit become scattered amongst the contexts and tests for other sibling units.
 
 To combat this, I like to organize my tests in a UnitUnderTest-Given-Then pattern. Where "UnitUnderTest" is usually the
-particular method, function, or endpoint being tested. 
+particular unit being tested (whether that be a method, function, REST endpoint, etc. being tested). 
 Our structured test hierarchy would look like this:
 
 - ClassUnderTest
@@ -125,8 +124,8 @@ Our structured test hierarchy would look like this:
     - Given ...
       - It should ...
 
-Here's an example of this pattern in action using JUnit. Notice how the test scenarios for a particular unit (in this case units are methods) are
-grouped together under a context for that unit:
+Here's an example of this pattern in action using JUnit. Notice how the test scenarios for a particular unit 
+(in this case units are methods) are grouped together under a context for that unit:
 
 ```java
 @DisplayName("PersonService")
@@ -182,7 +181,7 @@ that can be inferred from the hierarchy starts deeper into the hierarchy than it
 I believe this is a not a difficult expectation for readers to pick up on this pattern, especially for the 
 organizational advantage it provides.
 
-#### Alternative: UnitUnderTest-Given-When-Then Context
+#### Alternative: UnitUnderTest-Given-When-Then Pattern
 So far, I've omitted the `When` context because I state the inputs in the `Given` context. This is a personal preference
 and if you believe `Given`s should only state preconditions, then you can include a `When` context to describe the inputs.
 Both of these do not need to exist, sometimes you don't have preconditions, or sometimes you don't have inputs.
@@ -207,17 +206,20 @@ Example with just `When` context, because there is only an input and no precondi
       * It should return the `firstName` and `lastName` concatenated with a space in-between.
 
 ## Some Dos and Don'ts
+We've gone over the general framework for writing good tests, at least from a structure and output standpoint.
+Let's look at some more specific tidbits as Dos and Don'ts.
 
 ### Do: Provide contexts which describe preconditions, inputs, and their relationship to each-other
 
-Look at a test like
+Look at a test structure like
 * PersonService
   * deleteById
     * Given an existing record
       * It should delete the record
 
-This sounds wrong. We know from the description that a record exists and a record is deleted but was it the same record? How
-is it deciding which record to delete? Details are missing. Clearly there is an input which is not being described here
+This sounds wrong. We know from the description that a record exists and a record is deleted but was it the same record? 
+How is it deciding which record to delete? Details are missing. 
+Clearly there is an input which is not being described here
 and then there's no relationship described between the input and anything else. The improved version of this test would be:
 * PersonService
   * deleteById
@@ -280,9 +282,30 @@ should be:
 ### Do: Avoid overly vague terms
 It's not uncommon to run into tests that have some overly vague terminology and say things like "it should return the appropriate value". 
 What is the "appropriate value"?
-While we want to be general in our descriptions of our preconditions, inputs, and expectations, we still don't want the
+While we want to be general in our descriptions of our preconditions, inputs, and expectations, we still don't want to
 leave the reader guessing. This "appropriate value" gives no clue about what the unit being tested is supposed to do, just that whatever it is,
 it does it.
+
+This can be a bit of a challenge, as you also don't want to be overly specific or too verbose. You need to find the 
+phrasing that describes just enough when you can while still giving the reader a good idea of what's going on. 
+Ideally we should fully understand the test from reading the test output, there can be times when we need to find phrasing 
+that invites the reader of the test output to dig into the test code if they need more specifics. Though this should be rare.
+
+For example, with this test:
+* PersonService
+  * findById
+    * Given an `id` for an existing record
+      * It should return a Person record for that `id` with all fields populated from the database
+
+This is a bit vague, I'm not really sure what "all fields populated from the database" exactly entails. Like is the
+field `lastName` populated from the database column `SURNAME`? I don't know. I'll have to dig into the test code to find out.
+While that's inconvenient, if there's 20 fields in a `Person` record, leaving it kind of vague makes it much easier to both
+write and read these tests rather than describing how every single field gets populated.
+
+We also want to be careful here not to mask any behaviours. Like if the `Person` returned has an age, which is
+computed based on the birthdate stored in the database, then that should have its own test somewhere and not just hidden
+amongst the assertions in the "It should return a Person record for that `id` with all fields populated from the database"
+test.
 
 ## Conclusion
 That's a wrap on Part 2 on my compilation of tips for writing good tests. So far this has all been about the organization

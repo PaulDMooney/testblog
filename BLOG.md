@@ -1,4 +1,4 @@
-# Testing Blog
+# Enhancing the Developer Experience of Testing
 
 I would like to share some of my advice on writing good tests. I've often seen an overlooked aspect of testing is
 what the developer's experience is when running tests. Particularly the next developer's experience, whether that be a different

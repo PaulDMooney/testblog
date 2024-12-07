@@ -3,10 +3,11 @@
 I would like to share some of my advice on writing good tests. I've often seen an overlooked aspect of testing is
 what the developer's experience is when running tests. Particularly the next developer's experience, whether that be a different
 person or future you who has just come back to some area of the code you have not worked with in a long time. Or maybe
-it's current you practicing [TDD](https://martinfowler.com/bliki/TestDrivenDevelopment.html) and you need organize your 
+it's current you practicing [TDD](https://martinfowler.com/bliki/TestDrivenDevelopment.html) and you need to organize your 
 thoughts around what and how to test. Many times
-we run these tests and we can probably be confident that nothing broke but their output is incomprehensible! We aren't 
-really sure what's supposed to be happening, or if it's safe to change. So let's see if we can fix that!
+we run these tests we can probably be confident that nothing broke but their output is incomprehensible! We aren't 
+really sure what's supposed to be happening, or if it's safe to change. Or worse, something breaks, and we're not sure
+what it's supposed to be doing to get back to a working state. So let's see if we can fix that!
 
 ## Prioritizing the Test Output
 
@@ -17,10 +18,7 @@ This may seem obvious, but the statement I'm really trying to make here is that 
 good enough** to explain what's happening. It's not good enough for a couple of reasons. The first being, that it 
 significantly slows developers down
 having to read the test code. The second is that the test code does not express meaning and intentions. 
-Sometimes it is nearly impossible to determine
-what part of the test is consequential and what is ultimately inconsequential: Is the test asserting that value Y is equal
-to X because that's exactly what was meant to be tested? Or are the values themselves less important and the assertion 
-that they're equal just signalling that some underlying expected behaviour is happening?
+Looking at the sample inputs and outputs the test uses is not enough to explain what's going on.
 
 So how do we know if we have good output? We just look at it. Various IDEs and other test runners usually provide some 
 kind of test output report, this is what we're aiming to make look good.
@@ -33,10 +31,10 @@ kind of test output report, this is what we're aiming to make look good.
 The rest of this post will cover tips for how to make this output look good.
 
 ## Human Readable Test Descriptions
-Depending on your test framework, this is may be a no brainer. NodeJS testing frameworks, RSpec, and most 
+Depending on your test framework, this is may be a no-brainer. NodeJS testing frameworks, RSpec, and most 
 styles of [Kotest](https://kotest.io/docs/framework/framework.html)
-all have a required space for you to write real, human readable sentences right into the test and their test contexts. Making their output quite
-legible. 
+all have a required space for you to write real, human-readable sentences right into the test and their test contexts. 
+Making their output quite legible. 
 
 ```javascript
 describe('MyClassUnderTest', () => {
@@ -55,12 +53,12 @@ of writing out descriptions of tests as the method name with mixes of camel and 
 
 ```java
 @Test
-void givenAndIdForExistingRecord_whenDeleteByIdCalled_thenRecordIsDeletedFromDB() {
+void givenAnIdForExistingRecord_whenDeleteByIdCalled_thenRecordIsDeletedFromDB() {
     // test code here
 } 
 ```
 
-This is barely human readable, we can already tell before looking at the output. 
+This is barely human-readable, we can already tell before looking at the output. 
 It's hard to pick out the methods and inputs involved from the rest of the test verbiage. When
 viewing many of these test methods together, they're hard to pick out from each-other. It's just an eye sore. 
 And nowhere else in life do we need to read sentences that look like this, so we shouldn't need to read tests like this either.
